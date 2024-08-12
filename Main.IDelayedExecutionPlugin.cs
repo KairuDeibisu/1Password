@@ -32,7 +32,7 @@ public partial class Main : IDelayedExecutionPlugin
             {
                 Title = item.Title,
                 SubTitle = item.Vault.Name,
-                ToolTipData = new ToolTipData(item.Category.ToString(), string.Join(',',  item.Tags)),
+                ToolTipData = new ToolTipData(item.Category.ToString(), string.Join(", ",  item.Tags)),
                 ContextData = item.Id, 
             });
 
