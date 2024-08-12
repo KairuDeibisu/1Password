@@ -30,9 +30,10 @@ public partial class Main : IDelayedExecutionPlugin
 
             results.Add(new Result()
             {
-                Title = item.Vault.Name,
-                SubTitle = item.Title,
-                ContextData = item.Id,
+                Title = item.Title,
+                SubTitle = item.Vault.Name,
+                ToolTipData = new ToolTipData(item.Category.ToString(), string.Join(',',  item.Tags)),
+                ContextData = item.Id, 
             });
 
         });
