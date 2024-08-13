@@ -27,7 +27,7 @@ public partial class Main : IPlugin
     public string Name => Properties.Resources.plugin_name;
     public string Description => Properties.Resources.plugin_description;
 
-    
+
     private OnePasswordManager? _passwordManager;
 
     private bool _disabled = false;
@@ -52,13 +52,14 @@ public partial class Main : IPlugin
 
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _context.API.ThemeChanged += OnThemeChanged;
-        
+
         UpdateIconPath(_context.API.GetCurrentTheme());
 
         try
         {
             InitializeConfiguration();
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             Logger.LogError(ex.Message);
         }
@@ -140,7 +141,7 @@ public partial class Main : IPlugin
     private void InitializeLazyVaults()
     {
         Logger.LogInfo("Initializing Lazy Loading");
-;
+        ;
         if (_disabled || _passwordManager is null) return;
 
 
@@ -185,11 +186,34 @@ public partial class Main : IPlugin
 
         if (_disabled || _passwordManager is null) return;
 
+        if (_items == null)
+        {
+            DisablePlugin("This is an error with the plugin. _items can't be null in AddItemsFromVault.");
+            return;
+        }
+
         foreach (var item in items)
         {
-            if (!_items?.Any(i => i.Id == item.Id || i?.Vault?.Name == PluginSettings.OnePasswordExcludeVault) ?? false)
+
+            // Check if item or its vault is null, and apply the exclusion logic
+            if (item == null || item.Vault is null || item.Vault.Name == PluginSettings.OnePasswordExcludeVault) continue;
+
+            // Find the possble existing item by Id
+            var existingItem = _items.FirstOrDefault(i => i.Id == item.Id);
+
+            if (existingItem is null)
             {
-                _items?.Add(item);
+                // Add the new item if it doesn't already exist
+                _items.Add(item);
+                return;
+            }
+
+            // Check if the name has changed
+            if (existingItem.Vault?.Name != item.Vault?.Name)
+            {
+                Logger.LogInfo($"Item with Id {item.Id} name was updated.");
+                _items.Remove(existingItem);
+                _items.Add(item);
             }
         }
     }
@@ -214,7 +238,7 @@ public partial class Main : IPlugin
         if (_disabled)
         {
             return [
-                new() { 
+                new() {
                     Title = "1password - has been disabled",
                     SubTitle = _disabledReason,
                 }
