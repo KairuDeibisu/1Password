@@ -147,13 +147,13 @@ public partial class Main : IPlugin
         var allVaults = _passwordManager.GetVaults();
         if (!string.IsNullOrEmpty(PluginSettings.OnePasswordExcludeVault))
         {
-            allVaults.RemoveAll(vault => vault.Name == PluginSettings.OnePasswordExcludeVault || vault.Name == PluginSettings.OnePasswordInitVault);
+            allVaults.RemoveAll(vault => vault.Name == PluginSettings.OnePasswordExcludeVault);
         }
 
         var initalVault = allVaults.FirstOrDefault(vault => vault.Name == PluginSettings.OnePasswordInitVault);
         if (initalVault is not null)
         {
-            _vaults?.Add(initalVault.Id, initalVault);
+            _vaults.Add(initalVault.Id, initalVault);
         }
 
         foreach (var vault in allVaults)
