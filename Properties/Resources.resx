@@ -165,6 +165,12 @@
   <data name="one_password_install_path_desc" xml:space="preserve">
     <value>Path to the 1Password CLI executable (op.exe).</value>
   </data>
+  <data name="one_password_list_of_vaults" xml:space="preserve">
+    <value>List of vaults to load</value>
+  </data>
+  <data name="one_password_list_of_vaults_desc" xml:space="preserve">
+    <value>Loads a newline seperated list of vaults.</value>
+  </data>
   <data name="one_password_preload_favorite" xml:space="preserve">
     <value>Preload Favorites</value>
   </data>

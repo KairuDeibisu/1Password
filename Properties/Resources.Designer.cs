@@ -205,6 +205,24 @@ namespace Community.PowerToys.Run.Plugin._1Password.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to List of vaults to load.
+        /// </summary>
+        internal static string one_password_list_of_vaults {
+            get {
+                return ResourceManager.GetString("one_password_list_of_vaults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loads a newline seperated list of vaults..
+        /// </summary>
+        internal static string one_password_list_of_vaults_desc {
+            get {
+                return ResourceManager.GetString("one_password_list_of_vaults_desc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Preload Favorites.
         /// </summary>
         internal static string one_password_preload_favorite {
