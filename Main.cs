@@ -8,6 +8,7 @@ using OnePassword;
 using OnePassword.Accounts;
 using OnePassword.Items;
 using OnePassword.Vaults;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -27,22 +28,23 @@ public partial class Main : IPlugin
     public string Name => Properties.Resources.plugin_name;
     public string Description => Properties.Resources.plugin_description;
 
-    
+
     private OnePasswordManager? _passwordManager;
 
     private bool _disabled = false;
     private string _disabledReason = string.Empty;
 
-    private List<Item> _items;
-    private Dictionary<string, Vault> _vaults;
-    private Queue<Vault> _vaultsQueue = new();
+    private readonly List<Item> _items;
+    private readonly List<Item> _favoriteItems;
+    private readonly List<Vault> _vaults;
 
     public Main()
     {
         _items = new List<Item>();
-        _vaults = new Dictionary<string, Vault>();
-        _vaultsQueue = new Queue<Vault>();
+        _vaults = new List<Vault>();
+        _favoriteItems = new List<Item>();
     }
+
 
 
     public void Init(PluginInitContext context)
@@ -52,13 +54,14 @@ public partial class Main : IPlugin
 
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _context.API.ThemeChanged += OnThemeChanged;
-        
+
         UpdateIconPath(_context.API.GetCurrentTheme());
 
         try
         {
             InitializeConfiguration();
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             Logger.LogError(ex.Message);
         }
@@ -70,8 +73,9 @@ public partial class Main : IPlugin
         if (!InitializePasswordManager()) return;
         if (!InitializeAccountHandling()) return;
         _passwordManager?.SignIn();
-        InitializeLazyVaults();
+        InitializeVaults();
         InitializeItems();
+        InitializeFavoriteItems();
     }
 
     private bool InitializePasswordManager()
@@ -137,29 +141,33 @@ public partial class Main : IPlugin
         return true;
     }
 
-    private void InitializeLazyVaults()
+    private void InitializeVaults()
     {
-        Logger.LogInfo("Initializing Lazy Loading");
-;
-        if (_disabled || _passwordManager is null) return;
+        Logger.LogInfo("Initializing Loading");
 
+        if (_disabled || _passwordManager is null) return;
 
         var allVaults = _passwordManager.GetVaults();
         if (!string.IsNullOrEmpty(PluginSettings.OnePasswordExcludeVault))
         {
-            allVaults.RemoveAll(vault => vault.Name == PluginSettings.OnePasswordExcludeVault || vault.Name == PluginSettings.OnePasswordInitVault);
+            allVaults.RemoveAll(vault => vault.Name == PluginSettings.OnePasswordExcludeVault);
         }
 
-        var initalVault = allVaults.FirstOrDefault(vault => vault.Name == PluginSettings.OnePasswordInitVault);
-        if (initalVault is not null)
+        var initialVault = allVaults.FirstOrDefault(vault => vault.Name == PluginSettings.OnePasswordInitVault);
+        if (initialVault is not null && !_vaults.Contains(initialVault))
         {
-            _vaults?.Add(initalVault.Id, initalVault);
+           _vaults.Add(initialVault);
         }
 
-        foreach (var vault in allVaults)
-        {
-            _vaultsQueue.Enqueue(vault);
-        }
+
+        // Add all vaults to _vaults that are in the list to load but not already in _vaults.
+        var vaultsToAdd = allVaults
+            .Where(vault => PluginSettings.OnePasswordVaultsToLoad?.Contains(vault.Name) ?? false)
+            .Where(vault => !_vaults.Any(existingVault => existingVault.Name == vault.Name))
+            .ToList();
+
+        _vaults.AddRange(vaultsToAdd);
+
     }
 
     private void InitializeItems()
@@ -169,12 +177,28 @@ public partial class Main : IPlugin
         if (_disabled || _passwordManager is null) return;
 
 
-        if (PluginSettings.OnePasswordPreloadFavorite) AddItemsFromVault(_passwordManager.SearchForItems(favorite: true));
-
-        foreach (var vault in _vaults.Values)
+        foreach (var vault in _vaults)
         {
             AddItemsFromVault(_passwordManager.GetItems(vault));
         }
+
+    }
+
+
+
+    private void InitializeFavoriteItems()
+    {
+
+        Logger.LogInfo("Initializing Favorite Items");
+
+        if (_disabled || _passwordManager is null) return;
+
+        if (_favoriteItems.Count == 0) {
+            _favoriteItems.AddRange(_passwordManager.SearchForItems(favorite: true));
+        }
+
+
+        if (PluginSettings.OnePasswordPreloadFavorite) AddItemsFromVault(_favoriteItems);
 
     }
 
@@ -185,11 +209,35 @@ public partial class Main : IPlugin
 
         if (_disabled || _passwordManager is null) return;
 
+        if (_items == null)
+        {
+            DisablePlugin("This is an error with the plugin. _items can't be null in AddItemsFromVault.");
+            return;
+        }
+
         foreach (var item in items)
         {
-            if (!_items?.Any(i => i.Id == item.Id || i?.Vault?.Name == PluginSettings.OnePasswordExcludeVault) ?? false)
+
+            // Check if item or its vault is null, and apply the exclusion logic
+            if (item == null || item.Vault is null || item.Vault.Name == PluginSettings.OnePasswordExcludeVault) continue;
+
+            // Find the possble existing item by Id
+            var existingItem = _items.FirstOrDefault(i => i.Id == item.Id);
+
+            if (existingItem is null)
             {
-                _items?.Add(item);
+                // Add the new item if it doesn't already exist
+                _items.Add(item);
+                continue;
+            }
+
+            // Check if the name has changed
+            if (existingItem.Title != item.Title)
+            {
+                Logger.LogInfo($"Item with Id {item.Id} name was updated.");
+                _items.Remove(existingItem);
+                _items.Add(item);
+                continue;
             }
         }
     }
@@ -214,7 +262,7 @@ public partial class Main : IPlugin
         if (_disabled)
         {
             return [
-                new() { 
+                new() {
                     Title = "1password - has been disabled",
                     SubTitle = _disabledReason,
                 }
