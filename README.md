@@ -74,7 +74,7 @@ op --version
 9. Quit and reopen Power Toys.
 
 > [!IMPORTANT]
-> If no warnings show and there are no items loaded. Close and reopen PowerToys. [Know Issue](https://github.com/KairuDeibisu/PowerToysRunPlugin1Password/issues/8)
+> If no warnings show and there are no items loaded. Close and reopen PowerToys.
 
 <img width="526" alt="image" src="https://github.com/KairuDeibisu/PowerToysRunPlugin1Password/assets/34011041/f41391e6-4037-40dd-beeb-c3e5a149620a">
 
