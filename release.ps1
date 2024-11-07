@@ -18,7 +18,7 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
 $name = '_1Password'
 $assembly = "Community.PowerToys.Run.Plugin.$name"
 $version = "v$((Get-Content ./plugin.json | ConvertFrom-Json).Version)"
-$archs = @('x64', 'arm64')
+$archs = @('x64')
 $projectFile = "1Password.csproj"
 
 git tag $version
