@@ -46,13 +46,13 @@ namespace Community.PowerToys.Run.Plugin._1Password
 
         public void UpdateSettings(PowerLauncherPluginSettings settings)
         {
-            OnePasswordInstallPath = GetSettingOrDefault<string>(settings, nameof(OnePasswordInstallPath));
-            OnePasswordEmail = GetSettingOrDefault<string>(settings, nameof(OnePasswordEmail));
-            OnePasswordInitVault = GetSettingOrDefault<string>(settings, nameof(OnePasswordInitVault));
-            OnePasswordExcludeVault = GetSettingOrDefault<string>(settings, nameof(OnePasswordExcludeVault));
-            OnePasswordPreloadFavorite = GetSettingOrDefault<bool>(settings, nameof(OnePasswordPreloadFavorite));
-            WindowsEnableHistory = GetSettingOrDefault<bool>(settings, nameof(WindowsEnableHistory));
-            WindowsEnableRoaming = GetSettingOrDefault<bool>(settings, nameof(WindowsEnableRoaming));
+            OnePasswordInstallPath = GetSettingOrDefault<string>(Options,settings, nameof(OnePasswordInstallPath));
+            OnePasswordEmail = GetSettingOrDefault<string>(Options,settings, nameof(OnePasswordEmail));
+            OnePasswordInitVault = GetSettingOrDefault<string>(Options,settings, nameof(OnePasswordInitVault));
+            OnePasswordExcludeVault = GetSettingOrDefault<string>(Options, settings, nameof(OnePasswordExcludeVault));
+            OnePasswordPreloadFavorite = GetSettingOrDefault<bool>(Options, settings, nameof(OnePasswordPreloadFavorite));
+            WindowsEnableHistory = GetSettingOrDefault<bool>(Options, settings, nameof(WindowsEnableHistory));
+            WindowsEnableRoaming = GetSettingOrDefault<bool>(Options, settings, nameof(WindowsEnableRoaming));
         }
 
 
@@ -67,9 +67,9 @@ namespace Community.PowerToys.Run.Plugin._1Password
             };
         }
 
-        private T GetSettingOrDefault<T>(PowerLauncherPluginSettings settings, string key)
+        private static T GetSettingOrDefault<T>(IEnumerable<PluginAdditionalOption> options, PowerLauncherPluginSettings settings, string key)
         {
-            var defaultOption = Options.First(x => x.Key == key);
+            var defaultOption = options.First(x => x.Key == key);
             var option = settings?.AdditionalOptions?.FirstOrDefault(x => x.Key == key);
 
             object value;
@@ -89,5 +89,10 @@ namespace Community.PowerToys.Run.Plugin._1Password
             return (T)Convert.ChangeType(value, typeof(T));
         }
 
+
+
     }
+
+
+
 }

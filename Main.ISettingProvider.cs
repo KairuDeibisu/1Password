@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using ManagedCommon;
 using Microsoft.PowerToys.Settings.UI.Library;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,18 @@ public partial class Main : ISettingProvider
 
     public void UpdateSettings(PowerLauncherPluginSettings settings)
     {
+        Logger.LogDebug("Settings updated...");
+
+        _lastSettings = new PluginSettings(_rm);
+
+        _lastSettings.WindowsEnableRoaming = _settings.WindowsEnableRoaming;
+        _lastSettings.WindowsEnableHistory = _settings.WindowsEnableHistory;
+        _lastSettings.OnePasswordExcludeVault = _settings.OnePasswordExcludeVault;
+        _lastSettings.OnePasswordEmail = _settings.OnePasswordEmail;
+        _lastSettings.OnePasswordInitVault = _settings.OnePasswordInitVault;
+        _lastSettings.OnePasswordInstallPath = _settings.OnePasswordInstallPath;
+        _lastSettings.OnePasswordPreloadFavorite = _settings.OnePasswordPreloadFavorite;
+
         _settings.UpdateSettings(settings);
         _disabled = false;
     }

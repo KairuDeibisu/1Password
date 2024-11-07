@@ -42,6 +42,9 @@ public partial class Main : IPlugin
     private ResourceManager _rm;
     private PluginSettings _settings;
 
+    private PluginSettings _lastSettings;
+
+
     public Main()
     {
         _items = new List<Item>();
@@ -49,12 +52,14 @@ public partial class Main : IPlugin
         _vaultsQueue = new Queue<Vault>();
         _rm = new ResourceManager("Community.PowerToys.Run.Plugin._1Password.Properties.Resources", Assembly.GetExecutingAssembly());
         _settings = new PluginSettings(_rm);
+        _lastSettings = _settings;
     }
 
 
     public void Init(PluginInitContext context)
     {
         Logger.InitializeLogger("1PasswordPluginLogs");
+        
         Logger.LogInfo("Initializing 1Password plugin");
 
         _context = context ?? throw new ArgumentNullException(nameof(context));
