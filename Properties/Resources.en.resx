@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -124,7 +124,7 @@
     <value>Multiple accounts detected. Please specify an email address to select the correct account.</value>
   </data>
   <data name="error_internal_error_vaults_not_initialized" xml:space="preserve">
-    <value>Internal Error: Initialization failed: Items or Vaults are not set up correctly</value>
+    <value>Internal Error: Initialization failed: Items or Vaults are not set up correctly.</value>
   </data>
   <data name="error_internal_init_passsword_manager" xml:space="preserve">
     <value>Failed to initialize the 1Password manager. Ensure 1Password is running and your credentials are correct.</value>
@@ -136,7 +136,7 @@
     <value>No 1Password accounts found. Please ensure you're signed in.</value>
   </data>
   <data name="msg_box_title_one_password_disabled" xml:space="preserve">
-    <value>one_password_domain</value>
+    <value>1Password Plugin Disabled</value>
   </data>
   <data name="one_password_domain" xml:space="preserve">
     <value>Domain</value>

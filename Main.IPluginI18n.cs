@@ -15,11 +15,11 @@ public partial class Main : IPluginI18n
 {
     public string GetTranslatedPluginTitle()
     {
-        return Properties.Resources.plugin_name;
+        return _rm.GetString("plugin_name");
     }
 
     public string GetTranslatedPluginDescription()
     {
-        return Properties.Resources.plugin_description;
+        return _rm.GetString("plugin_description");
     }
 }

@@ -8,36 +8,43 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using Wox.Plugin;
 
 namespace Community.PowerToys.Run.Plugin._1Password
 {
-    public static class PluginSettings
+    public class PluginSettings
     {
-        public static string? OnePasswordInstallPath { get; set; }
-        public static string? OnePasswordInitVault { get; set; }
-        public static string? OnePasswordExcludeVault { get; set; }
-        public static string? OnePasswordEmail { get; set; }
-        public static bool OnePasswordPreloadFavorite { get; set; }
-        public static bool WindowsEnableHistory { get; set; }
-        public static bool WindowsEnableRoaming { get; set; }
 
-        public static IEnumerable<PluginAdditionalOption> Options => new List<PluginAdditionalOption>
+        public string? OnePasswordInstallPath { get; set; }
+        public string? OnePasswordInitVault { get; set; }
+        public string? OnePasswordExcludeVault { get; set; }
+        public string? OnePasswordEmail { get; set; }
+        public bool OnePasswordPreloadFavorite { get; set; }
+        public bool WindowsEnableHistory { get; set; }
+        public bool WindowsEnableRoaming { get; set; }
+
+
+        private ResourceManager _rm;
+
+        public PluginSettings(ResourceManager rm) {
+            _rm = rm;
+        }
+
+        public IEnumerable<PluginAdditionalOption> Options => new List<PluginAdditionalOption>
         {
-            CreateOption(nameof(OnePasswordInstallPath), Properties.Resources.one_password_install_path, Properties.Resources.one_password_install_path_desc),
-            CreateOption(nameof(OnePasswordInitVault), Properties.Resources.one_password_init_vault, Properties.Resources.one_password_init_vault_desc),
-            CreateOption(nameof(OnePasswordExcludeVault), Properties.Resources.one_password_exlude_vault, Properties.Resources.one_password_exclude_vault_desc),
-            CreateOption(nameof(OnePasswordEmail), Properties.Resources.one_password_email, Properties.Resources.one_password_email_desc),
-            CreateOption(nameof(OnePasswordPreloadFavorite), Properties.Resources.one_password_preload_favorite, optionType: PluginAdditionalOption.AdditionalOptionType.Checkbox),
-            CreateOption(nameof(WindowsEnableHistory), Properties.Resources.windows_enable_history,
-                Properties.Resources.windows_enable_history_desc, PluginAdditionalOption.AdditionalOptionType.Checkbox),
-            CreateOption(nameof(WindowsEnableRoaming), Properties.Resources.windows_enable_roaming,
-                Properties.Resources.windows_enable_roaming_desc, PluginAdditionalOption.AdditionalOptionType.Checkbox)
+            CreateOption(nameof(OnePasswordInstallPath), _rm.GetString("one_password_install_path"), _rm.GetString("one_password_install_path_desc")),
+            CreateOption(nameof(OnePasswordInitVault), _rm.GetString("one_password_init_vault"), _rm.GetString("one_password_init_vault_desc")),
+            CreateOption(nameof(OnePasswordExcludeVault), _rm.GetString("one_password_exclude_vault"), _rm.GetString("one_password_exclude_vault_desc")),
+            CreateOption(nameof(OnePasswordEmail), _rm.GetString("one_password_email"), _rm.GetString("one_password_email_desc")),
+            CreateOption(nameof(OnePasswordPreloadFavorite), _rm.GetString("one_password_preload_favorite"), optionType: PluginAdditionalOption.AdditionalOptionType.Checkbox),
+            CreateOption(nameof(WindowsEnableHistory), _rm.GetString("windows_enable_history"), _rm.GetString("windows_enable_history_desc"), PluginAdditionalOption.AdditionalOptionType.Checkbox),
+            CreateOption(nameof(WindowsEnableRoaming), _rm.GetString("windows_enable_roaming"), _rm.GetString("windows_enable_roaming_desc"), PluginAdditionalOption.AdditionalOptionType.Checkbox)
         };
 
-        public static void UpdateSettings(PowerLauncherPluginSettings settings)
+        public void UpdateSettings(PowerLauncherPluginSettings settings)
         {
             OnePasswordInstallPath = GetSettingOrDefault<string>(settings, nameof(OnePasswordInstallPath));
             OnePasswordEmail = GetSettingOrDefault<string>(settings, nameof(OnePasswordEmail));
@@ -60,7 +67,7 @@ namespace Community.PowerToys.Run.Plugin._1Password
             };
         }
 
-        private static T GetSettingOrDefault<T>(PowerLauncherPluginSettings settings, string key)
+        private T GetSettingOrDefault<T>(PowerLauncherPluginSettings settings, string key)
         {
             var defaultOption = Options.First(x => x.Key == key);
             var option = settings?.AdditionalOptions?.FirstOrDefault(x => x.Key == key);

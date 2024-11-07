@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation
 // The Microsoft Corporation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+// See the LICENSE file in the project root for more info_rmation.
 
 using ManagedCommon;
 using Microsoft.PowerToys.Settings.UI.Library;
@@ -15,6 +15,8 @@ using System.IO;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Wox.Plugin;
+using System.Resources;
+using System.Reflection;
 
 namespace Community.PowerToys.Run.Plugin._1Password;
 
@@ -24,8 +26,8 @@ public partial class Main : IPlugin
     public static string PluginID => "9576F2CB78674305838C65FD2BE224AC";
     public string? IconPath { get; set; }
     private PluginInitContext? _context;
-    public string Name => Properties.Resources.plugin_name;
-    public string Description => Properties.Resources.plugin_description;
+    public string Name => _rm.GetString("plugin_name");
+    public string Description => _rm.GetString("plugin_description");
 
     
     private OnePasswordManager? _passwordManager;
@@ -37,11 +39,16 @@ public partial class Main : IPlugin
     private Dictionary<string, Vault> _vaults;
     private Queue<Vault> _vaultsQueue = new();
 
+    private ResourceManager _rm;
+    private PluginSettings _settings;
+
     public Main()
     {
         _items = new List<Item>();
         _vaults = new Dictionary<string, Vault>();
         _vaultsQueue = new Queue<Vault>();
+        _rm = new ResourceManager("Community.PowerToys.Run.Plugin._1Password.Properties.Resources", Assembly.GetExecutingAssembly());
+        _settings = new PluginSettings(_rm);
     }
 
 
@@ -54,6 +61,7 @@ public partial class Main : IPlugin
         _context.API.ThemeChanged += OnThemeChanged;
         
         UpdateIconPath(_context.API.GetCurrentTheme());
+
 
         try
         {
@@ -78,19 +86,19 @@ public partial class Main : IPlugin
     {
         Logger.LogInfo("Initializing 1Password Manager");
 
-        if (string.IsNullOrEmpty(PluginSettings.OnePasswordInstallPath))
+        if (string.IsNullOrEmpty(_settings.OnePasswordInstallPath))
         {
-            DisablePlugin(Properties.Resources.error_missing_required_one_password_cli_path);
+            DisablePlugin(_rm.GetString("error_missing_required_one_password_cli_path"));
             return false;
         }
 
         if (_items is null || _vaults is null)
         {
-            DisablePlugin(Properties.Resources.error_internal_error_vaults_not_initialized);
+            DisablePlugin(_rm.GetString("error_internal_error_vaults_not_initialized"));
             return false;
         }
 
-        var onePasswordManagerOptions = new OnePasswordManagerOptions { Path = PluginSettings.OnePasswordInstallPath, AppIntegrated = true };
+        var onePasswordManagerOptions = new OnePasswordManagerOptions { Path = _settings.OnePasswordInstallPath, AppIntegrated = true };
         _passwordManager = new OnePasswordManager(onePasswordManagerOptions);
         return true;
     }
@@ -104,24 +112,24 @@ public partial class Main : IPlugin
         var accounts = _passwordManager.GetAccounts();
         if (accounts.IsEmpty)
         {
-            DisablePlugin(Properties.Resources.error_one_password_no_accounts_found);
+            DisablePlugin(_rm.GetString("error_one_password_no_accounts_found"));
             return false;
         }
 
         Account? account = null;
         if (accounts.Count > 1)
         {
-            if (string.IsNullOrEmpty(PluginSettings.OnePasswordEmail))
+            if (string.IsNullOrEmpty(_settings.OnePasswordEmail))
             {
-                DisablePlugin(Properties.Resources.error_email_not_specified);
+                DisablePlugin(_rm.GetString("error_email_not_specified"));
                 return false;
 
             }
 
-            account = accounts.FirstOrDefault(acc => acc.Email == PluginSettings.OnePasswordEmail);
+            account = accounts.FirstOrDefault(acc => acc.Email == _settings.OnePasswordEmail);
             if (account is null)
             {
-                DisablePlugin(Properties.Resources.error_email_found_no_match);
+                DisablePlugin(_rm.GetString("error_email_found_no_match"));
                 return false;
 
             }
@@ -145,12 +153,12 @@ public partial class Main : IPlugin
 
 
         var allVaults = _passwordManager.GetVaults();
-        if (!string.IsNullOrEmpty(PluginSettings.OnePasswordExcludeVault))
+        if (!string.IsNullOrEmpty(_settings.OnePasswordExcludeVault))
         {
-            allVaults.RemoveAll(vault => vault.Name == PluginSettings.OnePasswordExcludeVault || vault.Name == PluginSettings.OnePasswordInitVault);
+            allVaults.RemoveAll(vault => vault.Name == _settings.OnePasswordExcludeVault || vault.Name == _settings.OnePasswordInitVault);
         }
 
-        var initalVault = allVaults.FirstOrDefault(vault => vault.Name == PluginSettings.OnePasswordInitVault);
+        var initalVault = allVaults.FirstOrDefault(vault => vault.Name == _settings.OnePasswordInitVault);
         if (initalVault is not null)
         {
             _vaults?.Add(initalVault.Id, initalVault);
@@ -169,7 +177,7 @@ public partial class Main : IPlugin
         if (_disabled || _passwordManager is null) return;
 
 
-        if (PluginSettings.OnePasswordPreloadFavorite) AddItemsFromVault(_passwordManager.SearchForItems(favorite: true));
+        if (_settings.OnePasswordPreloadFavorite) AddItemsFromVault(_passwordManager.SearchForItems(favorite: true));
 
         foreach (var vault in _vaults.Values)
         {
@@ -187,7 +195,7 @@ public partial class Main : IPlugin
 
         foreach (var item in items)
         {
-            if (!_items?.Any(i => i.Id == item.Id || i?.Vault?.Name == PluginSettings.OnePasswordExcludeVault) ?? false)
+            if (!_items?.Any(i => i.Id == item.Id || i?.Vault?.Name == _settings.OnePasswordExcludeVault) ?? false)
             {
                 _items?.Add(item);
             }

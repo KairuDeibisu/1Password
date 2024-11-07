@@ -16,11 +16,11 @@ namespace Community.PowerToys.Run.Plugin._1Password;
 public partial class Main : ISettingProvider
 {
 
-    public IEnumerable<PluginAdditionalOption> AdditionalOptions => PluginSettings.Options;
+    public IEnumerable<PluginAdditionalOption> AdditionalOptions => _settings.Options;
 
     public void UpdateSettings(PowerLauncherPluginSettings settings)
     {
-        PluginSettings.UpdateSettings(settings);
+        _settings.UpdateSettings(settings);
         _disabled = false;
     }
 

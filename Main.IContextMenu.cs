@@ -31,7 +31,7 @@ public partial class Main : IContextMenu
                     new()
                     {
                         PluginName = Name,
-                        Title = "Copy username to clipboard",
+                        Title = _rm.GetString("context_menu_title_username"),
                         FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
                         Glyph = "\xE8C8", // Copy
                         AcceleratorKey = Key.C,
@@ -47,7 +47,7 @@ public partial class Main : IContextMenu
 
 
 
-                            EnhancedClipboard.CopyHelper(fieldValue ?? "Missing", PluginSettings.WindowsEnableHistory, PluginSettings.WindowsEnableRoaming);
+                            EnhancedClipboard.CopyHelper(fieldValue ?? "Missing", _settings.WindowsEnableHistory, _settings.WindowsEnableRoaming);
 
                             return true;
                         },
@@ -55,7 +55,7 @@ public partial class Main : IContextMenu
                     new()
                     {
                         PluginName = Name,
-                        Title = "Copy password to clipboard",
+                        Title = _rm.GetString("context_menu_title_password"),
                         FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
                         Glyph = "\xF78D", // eye
                         AcceleratorKey = Key.X,
@@ -69,7 +69,7 @@ public partial class Main : IContextMenu
                             var item = _passwordManager.SearchForItem(itemid);
                             var fieldvalue = item?.Fields.FirstOrDefault(field => field.Label == "password")?.Value;
 
-                            EnhancedClipboard.CopyHelper(fieldvalue ?? "missing", PluginSettings.WindowsEnableHistory, PluginSettings.WindowsEnableRoaming);
+                            EnhancedClipboard.CopyHelper(fieldvalue ?? "missing", _settings.WindowsEnableHistory, _settings.WindowsEnableRoaming);
 
                             return true;
                         },
@@ -77,7 +77,7 @@ public partial class Main : IContextMenu
                     new()
                     {
                         PluginName = Name,
-                        Title = "Copy OTP to clipboard",
+                        Title = _rm.GetString("context_menu_title_otp"),
                         FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
                         Glyph = "\xEC92", // Clock
                         AcceleratorKey = Key.O,
@@ -112,7 +112,7 @@ public partial class Main : IContextMenu
                                // Generate a TOTP code
                                var code = totp.ComputeTotp();
 
-                            EnhancedClipboard.CopyHelper(code  ?? "Missing", PluginSettings.WindowsEnableHistory, PluginSettings.WindowsEnableRoaming);
+                            EnhancedClipboard.CopyHelper(code  ?? "Missing", _settings.WindowsEnableHistory, _settings.WindowsEnableRoaming);
 
                             return true;
                         },
@@ -121,7 +121,7 @@ public partial class Main : IContextMenu
                     new()
                     {
                         PluginName = Name,
-                        Title = "Reload Item",
+                        Title = _rm.GetString("context_menu_title_reload"),
                         FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
                         Glyph = "\xE72C", // Refresh
                         AcceleratorKey = Key.R,
